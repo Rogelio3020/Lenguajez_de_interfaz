@@ -54,7 +54,7 @@ DateTime *reloj;
 StaticJsonDocument<512> horaActual;
 
 
-const char *ssid="INFINITUM268A";
+const char *ssid="INFINITUM268A_2.4";
 const char *passwrd="mCpp3x9Kpq";
 
 
