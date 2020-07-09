@@ -1,0 +1,64 @@
+version: "3.7"
+services: 
+  php:
+    restart: always
+    build: 
+      context: './php/'
+      network: 'host'
+      args:
+       PHP_VERSION: ${PHP_VERSION}
+    volumes:
+      - ./php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+      - ${PROJECT_ROOT}/:/var/www/html/
+      - ${STORAGE}:/home/storage/
+    container_name: php_${PHP_VERSION}
+  apache:
+    restart: always
+    env_file:
+      - .env
+    build:
+      context: './apache/'
+      network: 'host'
+      args:
+       APACHE_VERSION: ${APACHE_VERSION}
+    depends_on:
+      - php
+      - mariadb
+    ports:
+      - "80:80"
+    volumes:
+      - ${PROJECT_ROOT}/:/var/www/html/
+      - ${STORAGE}:/home/storage/
+    container_name: apache_${APACHE_VERSION}
+  mariadb:
+    env_file:
+      - .env
+    restart: always
+    build:
+      context: './mariadb/'
+      network: 'host'
+      args:
+        MYSQL_VERSION: ${MYSQL_VERSION}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadbdata:/bitnami
+      - ${STORAGE}/logs/mariadb/:/opt/bitnami/mariadb/logs
+    environment:      
+      - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - BITNAMI_DEBUG="true"      
+    container_name: mariadb_${MYSQL_VERSION}
+  phpmyadmin:
+    restart: always
+    image: 'bitnami/phpmyadmin:4'
+    ports:
+      - '8081:80'
+      - '4443:443'      
+    depends_on:
+      - mariadb
+    volumes:
+      - mariadbdata:/bitnami
+    container_name: phpMyadmin_${MYSQL_VERSION}     
+volumes:
+  mariadbdata:
+ 
